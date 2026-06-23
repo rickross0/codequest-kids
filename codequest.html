@@ -253,6 +253,10 @@
             <div onclick="switchTab('community')" id="tab-community"
                  class="nav-tab cursor-pointer px-5 py-2 rounded-3xl flex items-center text-sm font-extrabold hover:bg-slate-700 px-5">
                 <i class="fa-solid fa-users mr-2"></i> <span>COMMUNITY</span>
+            <div onclick="switchTab('terminal')" id="tab-terminal"
+                 class="nav-tab cursor-pointer px-5 py-2 rounded-3xl flex items-center text-sm font-extrabold hover:bg-slate-700 px-5">
+                <i class="fa-solid fa-terminal mr-2"></i> <span>BASHCRAWL</span>
+            </div>
             </div>
         </div>
         
@@ -330,6 +334,68 @@
                 <div class="bg-slate-800 border border-slate-700 rounded-3xl p-4">
                     <div class="font-extrabold mb-3">FRIENDS ACTIVITY</div>
                     <div id="friends-activity" class="space-y-[6px]"></div>
+        <!-- TERMINAL / BASHCRAWL TAB -->
+        <div id="terminal-tab" class="hidden">
+            <div class="mb-4 flex items-center justify-between">
+                <div>
+                    <h2 class="font-black text-3xl tracking-tight">Bashcrawl Terminal</h2>
+                    <p class="text-sm text-slate-400">Navigate the dungeon with real terminal commands!</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="px-3 py-1 bg-emerald-900/50 text-emerald-300 text-xs font-extrabold rounded-3xl px-4">
+                        <i class="fa-solid fa-heart mr-1"></i> HP: <span id="terminal-hp">100</span>
+                    </div>
+                    <div class="px-3 py-1 bg-amber-900/50 text-amber-300 text-xs font-extrabold rounded-3xl px-4">
+                        <i class="fa-solid fa-gem mr-1"></i> XP: <span id="terminal-xp">0</span>
+                    </div>
+                    <button onclick="resetTerminalGame()" class="px-3 py-1 bg-slate-700 text-xs font-extrabold rounded-3xl hover:bg-slate-600 text-slate-300">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden">
+                <!-- Terminal Output -->
+                <div id="terminal-output" class="terminal p-4 h-[400px] overflow-auto text-sm font-mono"
+                    style="background:#0f172a; color:#22c55e; white-space:pre-wrap;"
+                >
+<div class="text-emerald-300/60">Welcome to Bashcrawl! Type `help` to begin your dungeon adventure.</div>
+                </div>
+                
+                <!-- Terminal Input -->
+                <div class="flex items-center border-t border-slate-700 p-3 bg-slate-800">
+                    <span class="text-emerald-400 font-mono text-sm mr-2">$</span>
+                    <input 
+                        id="terminal-input"
+                        type="text"
+                        class="flex-1 bg-transparent border-none outline-none text-emerald-300 font-mono text-sm placeholder-emerald-700"
+                        placeholder="Type a command..."
+                        autocomplete="off"
+                        spellcheck="false"
+                        onkeydown="handleTerminalKey(event)"
+                    >
+                </div>
+            </div>
+            
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
+                    <div class="text-xs font-extrabold text-slate-400 mb-1">INVENTORY</div>
+                    <div id="terminal-inventory" class="text-xs text-emerald-300 font-mono">Empty</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
+                    <div class="text-xs font-extrabold text-slate-400 mb-1">LOCATION</div>
+                    <div id="terminal-location" class="text-xs text-emerald-300 font-mono">/entrance</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
+                    <div class="text-xs font-extrabold text-slate-400 mb-1">STATUS</div>
+                    <div id="terminal-status" class="text-xs text-emerald-300 font-mono">Alive</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
+                    <div class="text-xs font-extrabold text-slate-400 mb-1">HINT</div>
+                    <div class="text-xs text-amber-300 font-mono">try: ls, cd, cat, help</div>
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>
@@ -1611,10 +1677,12 @@
             document.getElementById("quests-tab").classList.add("hidden");
             document.getElementById("arcade-tab").classList.add("hidden");
             document.getElementById("community-tab").classList.add("hidden");
+            document.getElementById("terminal-tab").classList.add("hidden");
             
             document.getElementById("tab-quests").classList.remove("active", "bg-indigo-600", "text-white");
             document.getElementById("tab-arcade").classList.remove("active", "bg-indigo-600", "text-white");
             document.getElementById("tab-community").classList.remove("active", "bg-indigo-600", "text-white");
+            document.getElementById("tab-terminal").classList.remove("active", "bg-indigo-600", "text-white");
             
             if (tab === "quests") {
                 document.getElementById("quests-tab").classList.remove("hidden");
@@ -1623,6 +1691,12 @@
                 document.getElementById("arcade-tab").classList.remove("hidden");
                 document.getElementById("tab-arcade").classList.add("active", "bg-indigo-600", "text-white");
             } else if (tab === "community") {
+                document.getElementById("community-tab").classList.remove("hidden");
+                document.getElementById("tab-community").classList.add("active", "bg-indigo-600", "text-white");
+            } else if (tab === "terminal") {
+                document.getElementById("terminal-tab").classList.remove("hidden");
+                document.getElementById("tab-terminal").classList.add("active", "bg-indigo-600", "text-white");
+                setTimeout(() => document.getElementById("terminal-input")?.focus(), 100);
                 document.getElementById("community-tab").classList.remove("hidden");
                 document.getElementById("tab-community").classList.add("active", "bg-indigo-600", "text-white");
             }
@@ -1749,6 +1823,338 @@
             }
         }
         
+
+        // ===================== BASHCRAWL TERMINAL ENGINE =====================
+        
+        const terminalFS = {
+            "": { type: "dir", contents: ["entrance"] },
+            "entrance": { type: "dir", contents: ["README.md", "scroll", "cellar"] },
+            "entrance/README.md": { type: "file", text: `🚪 Welcome to the Entrance\n\nYou have entered the mystical catacombs of Bashcrawl.\n\nEssential spells to master:\n  ls        - Reveals items in your location\n  cd dir    - Moves to a different chamber\n  pwd       - Shows your exact location\n  cat file  - Displays scroll contents\n  help      - Show all commands\n\nNext step: cd cellar` },
+            "entrance/scroll": { type: "file", text: `📜 Ancient Scroll of Navigation\n\nThe dungeon awaits. Use your terminal skills to explore.\n\nCommands you will need:\n  ls, cd, pwd, cat, echo, clear, help\n\nBeware of monsters hiding in files!` },
+            "entrance/cellar": { type: "dir", contents: ["README.md", "scroll", "armoury", "treasure"] },
+            "entrance/cellar/README.md": { type: "file", text: `🍷 The Cellar\n\nYou have descended into the cellar.\n\nThe armoury lies ahead. Arm yourself!\n\nTry: ls -la  (to see hidden items too)` },
+            "entrance/cellar/scroll": { type: "file", text: `📜 Scroll of the Cellar\n\nHidden files start with a dot (.).\nUse ls -la to reveal them.\n\nType: ls -la` },
+            "entrance/cellar/treasure": { type: "treasure", name: "Emerald Amulet", value: 50, text: `💎 You found an Emerald Amulet! (+50 XP)` },
+            "entrance/cellar/armoury": { type: "dir", contents: ["README.md", "scroll", "chamber", "potion", "treasure"] },
+            "entrance/cellar/armoury/README.md": { type: "file", text: `⚔️ The Armoury\n\nWeapons and armor line the walls.\n\nA potion here can heal you.\nThe chamber beyond holds greater dangers...` },
+            "entrance/cellar/armoury/scroll": { type: "file", text: `📜 Scroll of Combat\n\nSome files are monsters in disguise!\nReading them with 'cat' will trigger battle.\n\nIf you find a monster, your HP will drop.\nUse potions to heal.\n\nCommand: cat monster_name` },
+            "entrance/cellar/armoury/potion": { type: "potion", heal: 25, text: `🧪 Healing Potion (+25 HP)` },
+            "entrance/cellar/armoury/treasure": { type: "treasure", name: "Rusty Sword", value: 30, text: `⚔️ You found a Rusty Sword! (+30 XP)` },
+            "entrance/cellar/armoury/chamber": { type: "dir", contents: ["scroll", "spell", "statue", "treasure", "ghost"] },
+            "entrance/cellar/armoury/chamber/scroll": { type: "file", text: `📜 Scroll of the Chamber\n\nYou have reached the deepest chamber.\n\nA ghost haunts this room.\nIt is hidden in a file named 'ghost'.\n\nBeware: cat ghost will awaken it!` },
+            "entrance/cellar/armoury/chamber/spell": { type: "file", text: `✨ Spell of Power\n\nYou have mastered the terminal!\n\nYour journey is complete.\n\nSecret: Try 'echo $USER' and 'echo $PATH'` },
+            "entrance/cellar/armoury/chamber/statue": { type: "file", text: `🗿 Ancient Statue\n\nThe statue stares silently.\nNothing happens... yet.\n\n(Hint: statues sometimes guard secrets)` },
+            "entrance/cellar/armoury/chamber/treasure": { type: "treasure", name: "Golden Crown", value: 100, text: `👑 You found a Golden Crown! (+100 XP)` },
+            "entrance/cellar/armoury/chamber/ghost": { type: "monster", name: "Ghost", damage: 20, xp: 75, text: `👻 A Ghost attacks you! (-20 HP)` },
+        };
+        
+        let terminalState = {
+            path: ["entrance"],
+            hp: 100,
+            maxHp: 100,
+            xp: 0,
+            inventory: [],
+            defeated: [],
+            history: [],
+            historyIndex: -1
+        };
+        
+        function getTerminalPath() {
+            return "/" + terminalState.path.join("/");
+        }
+        
+        function getTerminalDir() {
+            let key = terminalState.path.join("/");
+            return terminalFS[key] || null;
+        }
+        
+        function getTerminalItem(name) {
+            let key = terminalState.path.join("/") + "/" + name;
+            return terminalFS[key] || null;
+        }
+        
+        function terminalPrint(html, type = "normal") {
+            const output = document.getElementById("terminal-output");
+            const line = document.createElement("div");
+            if (type === "error") line.className = "text-rose-400";
+            else if (type === "success") line.className = "text-emerald-300";
+            else if (type === "info") line.className = "text-amber-300";
+            else if (type === "system") line.className = "text-slate-400";
+            else line.className = "text-emerald-300";
+            line.innerHTML = html;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function terminalPrintPrompt() {
+            terminalPrint(`<span class="text-slate-500">${getTerminalPath()}</span>`, "system");
+        }
+        
+        function updateTerminalUI() {
+            document.getElementById("terminal-hp").textContent = terminalState.hp;
+            document.getElementById("terminal-xp").textContent = terminalState.xp;
+            document.getElementById("terminal-location").textContent = getTerminalPath();
+            document.getElementById("terminal-status").textContent = terminalState.hp > 0 ? "Alive" : "☠️ Dead";
+            document.getElementById("terminal-inventory").textContent = terminalState.inventory.length > 0 ? terminalState.inventory.join(", ") : "Empty";
+        }
+        
+        function resetTerminalGame() {
+            terminalState = {
+                path: ["entrance"],
+                hp: 100,
+                maxHp: 100,
+                xp: 0,
+                inventory: [],
+                defeated: [],
+                history: [],
+                historyIndex: -1
+            };
+            document.getElementById("terminal-output").innerHTML = '<div class="text-emerald-300/60">Welcome to Bashcrawl! Type `help` to begin your dungeon adventure.</div>';
+            updateTerminalUI();
+            document.getElementById("terminal-input").focus();
+        }
+        
+        function handleTerminalCommand(cmd) {
+            cmd = cmd.trim();
+            if (!cmd) return;
+            
+            terminalState.history.push(cmd);
+            terminalState.historyIndex = terminalState.history.length;
+            
+            terminalPrint(`<span class="text-emerald-400">$</span> <span class="text-white">${cmd.replace(/&/g, "&amp;").replace(/\u003c/g, "&lt;").replace(/\u003e/g, "&gt;")}</span>`, "system");
+            
+            const parts = cmd.split(/\s+/);
+            const command = parts[0];
+            const args = parts.slice(1);
+            
+            switch (command) {
+                case "help":
+                case "?":
+                    terminalPrint(`<div class="text-amber-300 font-bold">📜 Available Commands:</div>`);
+                    terminalPrint(`<span class="text-emerald-300">  ls</span>       - List items in current room`);
+                    terminalPrint(`<span class="text-emerald-300">  ls -la</span>   - List all items (including hidden)`);
+                    terminalPrint(`<span class="text-emerald-300">  cd dir</span>   - Enter a directory/room`);
+                    terminalPrint(`<span class="text-emerald-300">  cd ..</span>    - Go back to previous room`);
+                    terminalPrint(`<span class="text-emerald-300">  pwd</span>      - Show current location`);
+                    terminalPrint(`<span class="text-emerald-300">  cat file</span> - Read a scroll or examine an item`);
+                    terminalPrint(`<span class="text-emerald-300">  echo text</span>- Print text to terminal`);
+                    terminalPrint(`<span class="text-emerald-300">  clear</span>    - Clear terminal screen`);
+                    terminalPrint(`<span class="text-emerald-300">  inv</span>      - Show inventory`);
+                    terminalPrint(`<span class="text-emerald-300">  heal</span>     - Use a healing potion`);
+                    terminalPrint(`<span class="text-emerald-300">  status</span>   - Show player status`);
+                    terminalPrint(`<span class="text-emerald-300">  map</span>      - Show dungeon map`);
+                    break;
+                    
+                case "ls":
+                    const showHidden = args.includes("-a") || args.includes("-la") || args.includes("-al");
+                    const dir = getTerminalDir();
+                    if (!dir) {
+                        terminalPrint("Error: cannot access current directory", "error");
+                        break;
+                    }
+                    let items = dir.contents || [];
+                    if (!showHidden) {
+                        items = items.filter(i => !i.startsWith("."));
+                    }
+                    if (items.length === 0) {
+                        terminalPrint("(empty room)", "system");
+                    } else {
+                        items.forEach(item => {
+                            const itemObj = getTerminalItem(item);
+                            let icon = "📄";
+                            let color = "text-emerald-300";
+                            if (itemObj?.type === "dir") { icon = "📁"; color = "text-sky-300"; }
+                            else if (itemObj?.type === "treasure") { icon = "💎"; color = "text-amber-300"; }
+                            else if (itemObj?.type === "potion") { icon = "🧪"; color = "text-rose-300"; }
+                            else if (itemObj?.type === "monster") { icon = "👹"; color = "text-rose-400"; }
+                            terminalPrint(`  ${icon} <span class="${color}">${item}</span>`);
+                        });
+                    }
+                    break;
+                    
+                case "cd":
+                    if (!args[0] || args[0] === "~") {
+                        terminalState.path = ["entrance"];
+                        terminalPrint(`Moved to /entrance`, "success");
+                    } else if (args[0] === "..") {
+                        if (terminalState.path.length > 1) {
+                            terminalState.path.pop();
+                            terminalPrint(`Moved to ${getTerminalPath()}`, "success");
+                        } else {
+                            terminalPrint("You are at the entrance. Cannot go back further.", "error");
+                        }
+                    } else {
+                        const target = args[0].replace(/\/$/, "");
+                        const item = getTerminalItem(target);
+                        if (item && item.type === "dir") {
+                            terminalState.path.push(target);
+                            terminalPrint(`Entered ${target}`, "success");
+                            // Check for room discovery XP
+                            const roomPath = terminalState.path.join("/");
+                            if (!terminalState.defeated.includes("room:" + roomPath)) {
+                                terminalState.defeated.push("room:" + roomPath);
+                                terminalState.xp += 10;
+                                terminalPrint(`🏠 New room discovered! (+10 XP)`, "info");
+                            }
+                        } else if (item) {
+                            terminalPrint(`'${target}' is not a room (directory).`, "error");
+                        } else {
+                            terminalPrint(`No such room: '${target}'`, "error");
+                        }
+                    }
+                    break;
+                    
+                case "pwd":
+                    terminalPrint(getTerminalPath(), "success");
+                    break;
+                    
+                case "cat":
+                    if (!args[0]) {
+                        terminalPrint("Usage: cat <file>", "error");
+                        break;
+                    }
+                    const fileName = args[0];
+                    const fileObj = getTerminalItem(fileName);
+                    if (!fileObj) {
+                        terminalPrint(`No such file: '${fileName}'`, "error");
+                        break;
+                    }
+                    
+                    if (fileObj.type === "dir") {
+                        terminalPrint(`'${fileName}' is a room, not a scroll. Use 'cd ${fileName}' to enter.`, "error");
+                    } else if (fileObj.type === "monster") {
+                        if (terminalState.defeated.includes(fileName)) {
+                            terminalPrint(`The ${fileObj.name} has already been defeated.`, "info");
+                            terminalPrint(fileObj.text, "info");
+                        } else {
+                            terminalState.hp -= fileObj.damage;
+                            terminalState.defeated.push(fileName);
+                            terminalState.xp += fileObj.xp;
+                            terminalPrint(fileObj.text, "error");
+                            terminalPrint(`⚔️ You defeated the ${fileObj.name}! (+${fileObj.xp} XP)`, "success");
+                            if (terminalState.hp <= 0) {
+                                terminalPrint(`☠️ YOU DIED! Type 'reset' or click Reset to try again.`, "error");
+                            }
+                        }
+                    } else if (fileObj.type === "treasure") {
+                        if (!terminalState.inventory.includes(fileObj.name)) {
+                            terminalState.inventory.push(fileObj.name);
+                            terminalState.xp += fileObj.value;
+                            terminalPrint(fileObj.text, "success");
+                        } else {
+                            terminalPrint(`You already have the ${fileObj.name}.`, "info");
+                        }
+                    } else if (fileObj.type === "potion") {
+                        if (terminalState.hp < terminalState.maxHp) {
+                            terminalState.hp = Math.min(terminalState.maxHp, terminalState.hp + fileObj.heal);
+                            terminalPrint(fileObj.text, "success");
+                            terminalPrint(`HP restored to ${terminalState.hp}`, "success");
+                        } else {
+                            terminalPrint(`You are already at full health!`, "info");
+                        }
+                    } else {
+                        terminalPrint(fileObj.text.replace(/\n/g, "<br>"), "success");
+                    }
+                    break;
+                    
+                case "echo":
+                    terminalPrint(args.join(" ") || "", "success");
+                    break;
+                    
+                case "clear":
+                    document.getElementById("terminal-output").innerHTML = "";
+                    break;
+                    
+                case "inv":
+                case "inventory":
+                    if (terminalState.inventory.length === 0) {
+                        terminalPrint("Your inventory is empty.", "info");
+                    } else {
+                        terminalPrint(`🎒 Inventory (${terminalState.inventory.length} items):`, "info");
+                        terminalState.inventory.forEach(item => {
+                            terminalPrint(`  • ${item}`, "success");
+                        });
+                    }
+                    break;
+                    
+                case "heal":
+                    const potions = terminalState.inventory.filter(i => i.includes("Potion"));
+                    if (potions.length > 0 && terminalState.hp < terminalState.maxHp) {
+                        terminalState.hp = Math.min(terminalState.maxHp, terminalState.hp + 25);
+                        terminalState.inventory = terminalState.inventory.filter(i => !i.includes("Potion"));
+                        terminalPrint(`🧪 Used a potion! HP restored to ${terminalState.hp}`, "success");
+                    } else if (terminalState.hp >= terminalState.maxHp) {
+                        terminalPrint("You are already at full health!", "info");
+                    } else {
+                        terminalPrint("No potions in inventory. Find one in the dungeon!", "error");
+                    }
+                    break;
+                    
+                case "status":
+                    terminalPrint(`<span class="text-amber-300 font-bold">📊 Status:</span>`, "info");
+                    terminalPrint(`  HP: ${terminalState.hp}/${terminalState.maxHp}`);
+                    terminalPrint(`  XP: ${terminalState.xp}`);
+                    terminalPrint(`  Location: ${getTerminalPath()}`);
+                    terminalPrint(`  Inventory: ${terminalState.inventory.length} items`);
+                    terminalPrint(`  Rooms explored: ${terminalState.defeated.filter(d => d.startsWith("room:")).length}`);
+                    break;
+                    
+                case "map":
+                    terminalPrint(`<span class="text-amber-300 font-bold">🗺️ Dungeon Map:</span>`, "info");
+                    terminalPrint(`  /entrance`);
+                    terminalPrint(`    └── cellar`);
+                    terminalPrint(`          ├── armoury`);
+                    terminalPrint(`          │     └── chamber`);
+                    terminalPrint(`          └── treasure`);
+                    break;
+                    
+                case "reset":
+                    resetTerminalGame();
+                    return;
+                    
+                default:
+                    terminalPrint(`Command not found: ${command}. Type 'help' for available commands.`, "error");
+            }
+            
+            updateTerminalUI();
+            
+            // Check win condition
+            if (terminalState.xp >= 200 && !terminalState.defeated.includes("win")) {
+                terminalState.defeated.push("win");
+                terminalPrint(`<div class="text-amber-300 font-bold text-lg">🎉 DUNGEON CLEARED! 🎉</div>`, "info");
+                terminalPrint(`You have mastered the terminal and conquered Bashcrawl!`, "success");
+                terminalPrint(`Final Score: ${terminalState.xp} XP | HP: ${terminalState.hp}`, "success");
+                // Award bonus XP to main game
+                gameState.xp += 150;
+                saveGameState();
+                updateUI();
+                terminalPrint(`🏆 +150 XP awarded to CodeQuest!`, "info");
+            }
+        }
+        
+        function handleTerminalKey(e) {
+            if (e.key === "Enter") {
+                const input = document.getElementById("terminal-input");
+                const cmd = input.value;
+                input.value = "";
+                handleTerminalCommand(cmd);
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (terminalState.historyIndex > 0) {
+                    terminalState.historyIndex--;
+                    document.getElementById("terminal-input").value = terminalState.history[terminalState.historyIndex];
+                }
+            } else if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (terminalState.historyIndex < terminalState.history.length - 1) {
+                    terminalState.historyIndex++;
+                    document.getElementById("terminal-input").value = terminalState.history[terminalState.historyIndex];
+                } else {
+                    terminalState.historyIndex = terminalState.history.length;
+                    document.getElementById("terminal-input").value = "";
+                }
+            }
+        }
         window.onload = initGame;
         
         // Global API for extensions
