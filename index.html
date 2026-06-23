@@ -254,10 +254,6 @@
                  class="nav-tab cursor-pointer px-5 py-2 rounded-3xl flex items-center text-sm font-extrabold hover:bg-slate-700 px-5">
                 <i class="fa-solid fa-users mr-2"></i> <span>COMMUNITY</span>
             </div>
-            <div onclick="switchTab('terminal')" id="tab-terminal"
-                 class="nav-tab cursor-pointer px-5 py-2 rounded-3xl flex items-center text-sm font-extrabold hover:bg-slate-700 px-5">
-                <i class="fa-solid fa-terminal mr-2"></i> <span>BASHCRAWL</span>
-            </div>
         </div>
         
         <!-- QUESTS TAB -->
@@ -322,82 +318,74 @@
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <!-- Leaderboard -->
-                <div class="bg-slate-800 border border-slate-700 rounded-3xl p-4 col-span-2">
+                <!-- Bashcrawl Terminal -->
+                <div class="bg-slate-900 border border-slate-700 rounded-3xl p-4 col-span-2 overflow-hidden">
                     <div class="flex items-center justify-between mb-3 px-1">
-                        <span class="font-extrabold">GLOBAL LEADERBOARD</span>
-                        <span class="text-xs px-3 py-1 bg-slate-700 rounded-3xl px-4 text-center" style="font-size:10px;">TODAY</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center rounded-xl text-white">
+                                <i class="fa-solid fa-terminal text-sm"></i>
+                            </div>
+                            <span class="font-extrabold">Bashcrawl Terminal</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="px-2 py-0.5 bg-emerald-900/50 text-emerald-300 text-xs font-extrabold rounded-2xl">
+                                <i class="fa-solid fa-heart mr-1"></i> HP: <span id="terminal-hp">100</span>
+                            </div>
+                            <div class="px-2 py-0.5 bg-amber-900/50 text-amber-300 text-xs font-extrabold rounded-2xl">
+                                <i class="fa-solid fa-gem mr-1"></i> XP: <span id="terminal-xp">0</span>
+                            </div>
+                            <button onclick="resetTerminalGame()" class="px-2 py-0.5 bg-slate-700 text-xs font-extrabold rounded-2xl hover:bg-slate-600 text-slate-300">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div id="mini-leaderboard" class="space-y-1 text-sm"></div>
+                    
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden mb-3">
+                        <div id="terminal-output" class="terminal p-3 h-[280px] overflow-auto text-sm font-mono"
+                            style="background:#0f172a; color:#22c55e; white-space:pre-wrap;"
+                        >
+<div class="text-emerald-300/60">Welcome to Bashcrawl! Type `help` to begin your dungeon adventure.</div>
+                        </div>
+                        
+                        <div class="flex items-center border-t border-slate-800 p-2 bg-slate-900">
+                            <span class="text-emerald-400 font-mono text-sm mr-2">$</span>
+                            <input 
+                                id="terminal-input"
+                                type="text"
+                                class="flex-1 bg-transparent border-none outline-none text-emerald-300 font-mono text-sm placeholder-emerald-700"
+                                placeholder="Type a command..."
+                                autocomplete="off"
+                                spellcheck="false"
+                                onkeydown="handleTerminalKey(event)"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-2">
+                            <div class="text-[10px] font-extrabold text-slate-400 mb-0.5">INVENTORY</div>
+                            <div id="terminal-inventory" class="text-[10px] text-emerald-300 font-mono truncate">Empty</div>
+                        </div>
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-2">
+                            <div class="text-[10px] font-extrabold text-slate-400 mb-0.5">LOCATION</div>
+                            <div id="terminal-location" class="text-[10px] text-emerald-300 font-mono truncate">/entrance</div>
+                        </div>
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-2">
+                            <div class="text-[10px] font-extrabold text-slate-400 mb-0.5">STATUS</div>
+                            <div id="terminal-status" class="text-[10px] text-emerald-300 font-mono">Alive</div>
+                        </div>
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-2">
+                            <div class="text-[10px] font-extrabold text-slate-400 mb-0.5">HINT</div>
+                            <div class="text-[10px] text-amber-300 font-mono">try: ls, cd, cat</div>
+                        </div>
+                    </div>
                 </div>
+
                 
                 <div class="bg-slate-800 border border-slate-700 rounded-3xl p-4">
                     <div class="font-extrabold mb-3">FRIENDS ACTIVITY</div>
                     <div id="friends-activity" class="space-y-[6px]"></div>
-        <!-- TERMINAL / BASHCRAWL TAB -->
-        <div id="terminal-tab" class="hidden">
-            <div class="mb-4 flex items-center justify-between">
-                <div>
-                    <h2 class="font-black text-3xl tracking-tight">Bashcrawl Terminal</h2>
-                    <p class="text-sm text-slate-400">Navigate the dungeon with real terminal commands!</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="px-3 py-1 bg-emerald-900/50 text-emerald-300 text-xs font-extrabold rounded-3xl px-4">
-                        <i class="fa-solid fa-heart mr-1"></i> HP: <span id="terminal-hp">100</span>
-                    </div>
-                    <div class="px-3 py-1 bg-amber-900/50 text-amber-300 text-xs font-extrabold rounded-3xl px-4">
-                        <i class="fa-solid fa-gem mr-1"></i> XP: <span id="terminal-xp">0</span>
-                    </div>
-                    <button onclick="resetTerminalGame()" class="px-3 py-1 bg-slate-700 text-xs font-extrabold rounded-3xl hover:bg-slate-600 text-slate-300">
-                        <i class="fa-solid fa-rotate-right"></i> Reset
-                    </button>
-                </div>
-            </div>
-            
-            <div class="bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden">
-                <!-- Terminal Output -->
-                <div id="terminal-output" class="terminal p-4 h-[400px] overflow-auto text-sm font-mono"
-                    style="background:#0f172a; color:#22c55e; white-space:pre-wrap;"
-                >
-<div class="text-emerald-300/60">Welcome to Bashcrawl! Type `help` to begin your dungeon adventure.</div>
-                </div>
-                
-                <!-- Terminal Input -->
-                <div class="flex items-center border-t border-slate-700 p-3 bg-slate-800">
-                    <span class="text-emerald-400 font-mono text-sm mr-2">$</span>
-                    <input 
-                        id="terminal-input"
-                        type="text"
-                        class="flex-1 bg-transparent border-none outline-none text-emerald-300 font-mono text-sm placeholder-emerald-700"
-                        placeholder="Type a command..."
-                        autocomplete="off"
-                        spellcheck="false"
-                        onkeydown="handleTerminalKey(event)"
-                    >
-                </div>
-            </div>
-            
-            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
-                    <div class="text-xs font-extrabold text-slate-400 mb-1">INVENTORY</div>
-                    <div id="terminal-inventory" class="text-xs text-emerald-300 font-mono">Empty</div>
-                </div>
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
-                    <div class="text-xs font-extrabold text-slate-400 mb-1">LOCATION</div>
-                    <div id="terminal-location" class="text-xs text-emerald-300 font-mono">/entrance</div>
-                </div>
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
-                    <div class="text-xs font-extrabold text-slate-400 mb-1">STATUS</div>
-                    <div id="terminal-status" class="text-xs text-emerald-300 font-mono">Alive</div>
-                </div>
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3">
-                    <div class="text-xs font-extrabold text-slate-400 mb-1">HINT</div>
-                    <div class="text-xs text-amber-300 font-mono">try: ls, cd, cat, help</div>
-                </div>
-            </div>
-        </div>
-                </div>
-            </div>
+
         </div>
         
         <!-- Quick Actions -->
@@ -1677,13 +1665,11 @@
             document.getElementById("quests-tab").classList.add("hidden");
             document.getElementById("arcade-tab").classList.add("hidden");
             document.getElementById("community-tab").classList.add("hidden");
-            document.getElementById("terminal-tab").classList.add("hidden");
-            
+                        
             document.getElementById("tab-quests").classList.remove("active", "bg-indigo-600", "text-white");
             document.getElementById("tab-arcade").classList.remove("active", "bg-indigo-600", "text-white");
             document.getElementById("tab-community").classList.remove("active", "bg-indigo-600", "text-white");
-            document.getElementById("tab-terminal").classList.remove("active", "bg-indigo-600", "text-white");
-            
+                        
             if (tab === "quests") {
                 document.getElementById("quests-tab").classList.remove("hidden");
                 document.getElementById("tab-quests").classList.add("active", "bg-indigo-600", "text-white");
@@ -1693,10 +1679,6 @@
             } else if (tab === "community") {
                 document.getElementById("community-tab").classList.remove("hidden");
                 document.getElementById("tab-community").classList.add("active", "bg-indigo-600", "text-white");
-            } else if (tab === "terminal") {
-                document.getElementById("terminal-tab").classList.remove("hidden");
-                document.getElementById("tab-terminal").classList.add("active", "bg-indigo-600", "text-white");
-                setTimeout(() => document.getElementById("terminal-input")?.focus(), 100);
                 document.getElementById("community-tab").classList.remove("hidden");
                 document.getElementById("tab-community").classList.add("active", "bg-indigo-600", "text-white");
             }
