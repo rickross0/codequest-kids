@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: codequest-kids
+    env: static
+    buildCommand: ""
+    staticPublishPath: .
+    # This tells Render to serve the static files from the root
+    # No build needed - it's a pure single-file game
